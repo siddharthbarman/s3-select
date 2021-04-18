@@ -82,9 +82,10 @@ public class S3App implements CommandLineRunner {
 
     private void help() {
         System.out.println("Runs an select query on csv data stored in an S3 bucket");
-        System.out.println("Syntax: java -jar s3sel-1.0.jar  -rgn <aws-region-name> -akey <aws-access-key> -skey <aws-secret-key> -bucket <s3-bucket-name> -okey <s3-object-key> -expr \"<select-query>\"");
+        System.out.println("Syntax: java -jar s3sel-1.0.jar  -rgn <aws-region-name> -akey <aws-access-key> -skey <aws-secret-key> -bucket <s3-bucket-name> -okey <s3-object-key> -type NONE|GZIP|BZIP2  -expr \"<select-query>\"");
         System.out.println("Example:");
         System.out.println("java -jar s3sel-1.0.jar -rgn us-east-1 -akey MYACCESSKEY -skey MYSECRETKEY -bucket my-s3-sucket -okey books.csv -expr \"select title,price from s3object s where s.author = 'Isaac Asimov'\"");
+        System.out.println("java -jar s3sel-1.0.jar -rgn us-east-1 -akey MYACCESSKEY -skey MYSECRETKEY -bucket my-s3-sucket -okey books.csv -type GZIP -expr \"select title,price from s3object s where s.author = 'Isaac Asimov'\"");
         System.out.println("Web: https://sbytestream.pythonanywhere.com");
     }
 
@@ -109,7 +110,8 @@ public class S3App implements CommandLineRunner {
 
         InputSerialization iser = new InputSerialization();
         iser.setCsv(csvInput);
-        iser.setCompressionType("NONE");
+        CompressionType compressionType = CompressionType.fromValue(cmd.getFlagValue(FLAG_COMPRESS_TYPE, "NONE"));
+        iser.setCompressionType(compressionType);
         socr.setInputSerialization(iser);
 
         CSVOutput csvOutput = new CSVOutput();
@@ -140,5 +142,6 @@ public class S3App implements CommandLineRunner {
     private final String FLAG_SECRET_KEY_ID = "skey";
     private final String FLAG_BUCKET_NAME = "bucket";
     private final String FLAG_OBJECT_KEY = "okey";
+    private final String FLAG_COMPRESS_TYPE = "type";
     private final String FLAG_EXPR = "expr";
 }
